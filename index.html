@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>2026 Finances</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-card">
+      <div class="lock-icon">🔒</div>
+      <div class="eyebrow">PRIVATE EXPENSE TRACKER</div>
+      <h1>Enter password</h1>
+      <p>Temporary password: <strong>1234</strong></p>
+      <input id="passwordInput" class="money-input" type="password" inputmode="numeric" placeholder="Password" autocomplete="off">
+      <button id="unlockBtn" class="primary-btn">Unlock</button>
+      <div id="passwordError" class="password-error"></div>
+    </div>
+  </div>
+  <div id="appShell">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">YEARLY EXPENSE TRACKER</div>
+      <h1>2026 Finances</h1>
+    </div>
+    <div class="top-actions"><button class="settings-btn" id="changePasswordBtn">🔐</button><button class="reset-btn" id="resetBtn">Reset</button></div>
+  </header>
+
+  <main>
+    <section id="home" class="page active">
+      <div class="hero">
+        <span>Year-end balance</span>
+        <strong id="homeBalance">₹0</strong>
+        <small id="homeBalanceText">Add your monthly fund and expenses.</small>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><span>Fund received</span><strong id="homeFund">₹0</strong></div>
+        <div class="stat-card"><span>Total spent</span><strong id="homeSpent">₹0</strong></div>
+      </div>
+      <div class="backup-panel">
+        <div>
+          <div class="eyebrow">DATA SAFETY</div>
+          <h2>Backup & Restore</h2>
+          <p class="muted">Save your expense data to a file and restore it later on this phone.</p>
+        </div>
+        <div class="backup-actions">
+          <button id="backupBtn" class="primary-btn">⬇ Backup Data</button>
+          <button id="restoreBtn" class="secondary-btn">⬆ Restore Data</button>
+          <input id="restoreFileInput" type="file" accept=".json,application/json" hidden>
+        </div>
+      </div>
+      <div class="section-head"><h2>Monthly overview</h2></div>
+      <div id="homeMonths" class="month-list"></div>
+    </section>
+
+    <section id="months" class="page">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">JANUARY–DECEMBER</div>
+          <h2>Monthly entries</h2>
+        </div>
+      </div>
+      <p class="muted">Add expenses whenever they happen. Each category starts at ₹0 and keeps adding up.</p>
+      <div id="monthCards" class="month-list"></div>
+    </section>
+
+    <section id="summary" class="page">
+      <div class="section-head"><h2>Yearly summary</h2></div>
+      <div class="summary-big">
+        <div><span>Total fund received</span><strong id="summaryFund">₹0</strong></div>
+        <div><span>Total expenditure</span><strong id="summarySpent">₹0</strong></div>
+        <div><span>Final year-end balance</span><strong id="summaryBalance">₹0</strong></div>
+      </div>
+      <div class="section-head"><h2>Category totals</h2></div>
+      <div id="categoryTotals" class="category-total-list"></div>
+    </section>
+
+    <section id="oldrecords" class="page">
+      <div class="section-head">
+        <div><div class="eyebrow">PREVIOUS YEARS</div><h2>Old Records</h2></div>
+      </div>
+      <p class="muted">Keep only the yearly totals for older years: total in, total out and balance.</p>
+      <button id="addOldRecordBtn" class="primary-btn">+ Add old year</button>
+      <div id="oldRecordsList" class="old-records-list"></div>
+    </section>
+
+    <section id="analytics" class="page">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">BASED ON YOUR OWN HISTORY</div>
+          <h2>Analytics AI</h2>
+        </div>
+      </div>
+      <p class="muted">Spending is compared with your other entered months — not with fixed “ideal” amounts.</p>
+      <div id="analyticsContent"></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="home"><span>⌂</span><label>Home</label></button>
+    <button class="nav-btn" data-page="months"><span>＋</span><label>Months</label></button>
+    <button class="nav-btn" data-page="summary"><span>▤</span><label>Summary</label></button>
+    <button class="nav-btn" data-page="analytics"><span>✦</span><label>Analytics</label></button>
+    <button class="nav-btn" data-page="oldrecords"><span>↶</span><label>Old Records</label></button>
+  </nav>
+
+  <div id="passwordModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div><div class="eyebrow">SECURITY</div><h2>Change password</h2></div>
+        <button class="close-btn" id="closePasswordModal">×</button>
+      </div>
+      <label class="field-label">Current password</label>
+      <input id="currentPasswordInput" class="money-input" type="password" autocomplete="current-password" placeholder="Current password">
+      <label class="field-label old-label">New password</label>
+      <input id="newPasswordInput" class="money-input" type="password" autocomplete="new-password" placeholder="New password">
+      <label class="field-label old-label">Confirm new password</label>
+      <input id="confirmPasswordInput" class="money-input" type="password" autocomplete="new-password" placeholder="Confirm new password">
+      <div id="changePasswordError" class="password-error"></div>
+      <button id="savePasswordBtn" class="primary-btn">Change password</button>
+    </div>
+  </div>
+
+  <div id="oldModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div><div class="eyebrow">OLD YEAR</div><h2 id="oldModalTitle">Add old record</h2></div>
+        <button class="close-btn" id="closeOldModal">×</button>
+      </div>
+      <label class="field-label">Year</label>
+      <input id="oldYearInput" class="money-input" type="number" min="1900" max="2099" placeholder="2025">
+      <label class="field-label old-label">Total in</label>
+      <input id="oldInInput" class="money-input" type="number" min="0" placeholder="₹0">
+      <label class="field-label old-label">Total out</label>
+      <input id="oldOutInput" class="money-input" type="number" min="0" placeholder="₹0">
+      <button id="saveOldBtn" class="primary-btn">Save old record</button>
+    </div>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="eyebrow">MONTHLY ENTRY</div>
+          <h2 id="modalTitle">January</h2>
+        </div>
+        <button class="close-btn" id="closeModal">×</button>
+      </div>
+
+      <label class="field-label">Fund received for this month</label>
+      <input id="fundInput" class="money-input" type="number" min="0" step="1" placeholder="₹0">
+
+      <div class="entry-box">
+        <div class="entry-title">Add an expense</div>
+        <p class="muted small">Enter one expense at a time. It will be added to the selected category.</p>
+        <select id="categoryInput" class="select-input"></select>
+        <input id="expenseInput" class="money-input" type="number" min="0" step="1" placeholder="₹0">
+        <button id="addExpenseBtn" class="primary-btn">Add expense</button>
+      </div>
+
+      <div class="section-head compact">
+        <h3>Running totals</h3>
+        <span id="entryCount" class="pill">0 entries</span>
+      </div>
+      <div id="runningTotals" class="running-totals"></div>
+
+      <div class="live-total">
+        <div><span>Total expense</span><strong id="liveTotal">₹0</strong></div>
+        <div><span>Balance</span><strong id="liveBalance">₹0</strong></div>
+      </div>
+
+      <div class="section-head compact"><h3>Recent entries</h3></div>
+      <div id="entryList" class="entry-list"></div>
+
+      <button id="saveMonthBtn" class="primary-btn save-btn">Save month</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</div>
+</body>
+</html>
