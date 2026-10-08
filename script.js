@@ -335,3 +335,8 @@ document.getElementById("restoreFileInput").addEventListener("change",e=>{
   restoreDataFromFile(e.target.files[0]);
   e.target.value="";
 });
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
