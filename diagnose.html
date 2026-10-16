@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expense Storage Check</title>
+</head>
+<body>
+  <h2>Expense Storage Diagnostic</h2>
+  <p>This page checks browser storage without intentionally changing or deleting it.</p>
+  <button id="check">Check storage</button>
+  <pre id="result">Waiting…</pre>
+
+  <script>
+    document.getElementById("check").onclick = async function () {
+      const out = document.getElementById("result");
+      const lines = [];
+
+      try {
+        lines.push("localStorage keys:");
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          lines.push("- " + key + " (" + (value ? value.length : 0) + " characters)");
+        }
+      } catch (e) {
+        lines.push("localStorage error: " + e.message);
+      }
+
+      try {
+        lines.push("\nsessionStorage keys:");
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          const value = sessionStorage.getItem(key);
+          lines.push("- " + key + " (" + (value ? value.length : 0) + " characters)");
+        }
+      } catch (e) {
+        lines.push("sessionStorage error: " + e.message);
+      }
+
+      if ("indexedDB" in window) {
+        try {
+          const dbs = await indexedDB.databases();
+          lines.push("\nIndexedDB databases:");
+          lines.push(dbs.length
+            ? dbs.map(db => "- " + db.name + " (version " + db.version + ")").join("\n")
+            : "No databases listed.");
+        } catch (e) {
+          lines.push("\nIndexedDB listing unavailable: " + e.message);
+        }
+      }
+
+      if ("caches" in window) {
+        try {
+          const names = await caches.keys();
+          lines.push("\nCache Storage:");
+          lines.push(names.length ? names.map(n => "- " + n).join("\n") : "No named caches.");
+        } catch (e) {
+          lines.push("Cache Storage error: " + e.message);
+        }
+      }
+
+      out.textContent = lines.join("\n");
+    };
+  </script>
+</body>
+  </html>
