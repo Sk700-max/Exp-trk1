@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expense Data Recovery</title>
+</head>
+<body>
+  <h2>2026 Expense Data Recovery</h2>
+  <p>This page checks this browser's local storage only.</p>
+  <button id="check">Check for saved expense data</button>
+  <p id="result"></p>
+
+  <script>
+    document.getElementById("check").onclick = function () {
+      const key = "yearlyExpenseTracker2026";
+      const saved = localStorage.getItem(key);
+      const result = document.getElementById("result");
+
+      if (!saved) {
+        result.textContent =
+          "No data found under the expense tracker's storage key in this browser.";
+        return;
+      }
+
+      try {
+        const data = JSON.parse(saved);
+        const months = Array.isArray(data.months) ? data.months : [];
+        const entries = months.reduce(
+          (total, month) =>
+            total + (Array.isArray(month.entries) ? month.entries.length : 0),
+          0
+        );
+
+        result.textContent =
+          "Stored data found. Months: " + months.length +
+          ". Entries: " + entries + ". Preparing backup…";
+
+        const blob = new Blob([saved], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "Expense_Recovery.json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      } catch (error) {
+        result.textContent =
+          "Stored data exists, but it could not be read as valid JSON.";
+      }
+    };
+  </script>
+</body>
+</html>
