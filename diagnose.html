@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Expense Storage Check</title>
+  <title>Expense Cache Inspector</title>
 </head>
 <body>
-  <h2>Expense Storage Diagnostic</h2>
-  <p>This page checks browser storage without intentionally changing or deleting it.</p>
-  <button id="check">Check storage</button>
+  <h2>Expense Cache Inspector</h2>
+  <p>This only reads cached responses. It does not delete anything.</p>
+  <button id="check">Inspect cache</button>
   <pre id="result">Waiting…</pre>
 
   <script>
@@ -17,51 +17,43 @@
       const lines = [];
 
       try {
-        lines.push("localStorage keys:");
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          const value = localStorage.getItem(key);
-          lines.push("- " + key + " (" + (value ? value.length : 0) + " characters)");
+        const names = await caches.keys();
+
+        if (!names.length) {
+          out.textContent = "No caches found.";
+          return;
         }
+
+        for (const name of names) {
+          const cache = await caches.open(name);
+          const requests = await cache.keys();
+
+          lines.push("CACHE: " + name);
+          lines.push("Cached items: " + requests.length);
+
+          for (const request of requests) {
+            const response = await cache.match(request);
+            let size = "unknown";
+
+            if (response) {
+              try {
+                const copy = response.clone();
+                const blob = await copy.blob();
+                size = blob.size + " bytes";
+              } catch (e) {}
+            }
+
+            lines.push(request.url + " — " + size);
+          }
+
+          lines.push("");
+        }
+
+        out.textContent = lines.join("\n");
       } catch (e) {
-        lines.push("localStorage error: " + e.message);
+        out.textContent = "Could not inspect cache: " + e.message;
       }
-
-      try {
-        lines.push("\nsessionStorage keys:");
-        for (let i = 0; i < sessionStorage.length; i++) {
-          const key = sessionStorage.key(i);
-          const value = sessionStorage.getItem(key);
-          lines.push("- " + key + " (" + (value ? value.length : 0) + " characters)");
-        }
-      } catch (e) {
-        lines.push("sessionStorage error: " + e.message);
-      }
-
-      if ("indexedDB" in window) {
-        try {
-          const dbs = await indexedDB.databases();
-          lines.push("\nIndexedDB databases:");
-          lines.push(dbs.length
-            ? dbs.map(db => "- " + db.name + " (version " + db.version + ")").join("\n")
-            : "No databases listed.");
-        } catch (e) {
-          lines.push("\nIndexedDB listing unavailable: " + e.message);
-        }
-      }
-
-      if ("caches" in window) {
-        try {
-          const names = await caches.keys();
-          lines.push("\nCache Storage:");
-          lines.push(names.length ? names.map(n => "- " + n).join("\n") : "No named caches.");
-        } catch (e) {
-          lines.push("Cache Storage error: " + e.message);
-        }
-      }
-
-      out.textContent = lines.join("\n");
     };
   </script>
 </body>
-  </html>
+</html>
